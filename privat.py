@@ -71,7 +71,7 @@ async def main(days_from_chat, currencies):
 
     try:
         days = int(days_from_chat)
-        assert 0<days<11
+        assert 0 < days < 11
     except (ValueError, AssertionError):
         return 'Wrong days format. You can enter only numbers between 1 and 10 inclusive.'
 
