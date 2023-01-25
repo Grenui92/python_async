@@ -1,7 +1,10 @@
 import platform
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import aiohttp
 import asyncio
+import aiofile
+
+
 
 
 class PrivateCurrencyChange:
@@ -18,9 +21,10 @@ class PrivateCurrencyChange:
         self.today = date.today()
 
     async def get_exchange_course(self, days: int):
-
+        await self.log_to_file(f'{datetime.now()}--Begin connection to PrivatBank with var: days = {days} and currencies = {self.currencies}\n')
         tasks = []
         async with aiohttp.ClientSession() as session:
+            await self.log_to_file(f'{datetime.now()}--Connection create\n')
             for i in range(days):
                 # Додаэмо в список витягування котировок за кожний день. Кожен день - окрема асинхронна операція
                 data_to_get = (self.today - timedelta(i)).strftime('%d.%m.%Y')
@@ -29,42 +33,58 @@ class PrivateCurrencyChange:
             # Виконуємо створений вище список задач
             await asyncio.gather(*tasks)
 
-        await self.show_exchange_rate()
+        return await self.show_exchange_rate()
 
     async def get_one_day_rate(self, session, url):
         try:
             async with session.get(url) as response:
+                await self.log_to_file(f'{datetime.now()}--session with {url} successfully create\n')
                 one_day_request = await response.json()
                 self.exchange_list.append(one_day_request)
+                await self.log_to_file(f'{datetime.now()}--session with {url} successfully end\n')
         except aiohttp.ClientConnectorError:
-            print(f'Connection error: {url}')
+            await self.log_to_file(f'{datetime.now()}--Connection error: {url}\n')
+
     async def show_exchange_rate(self):
+        result = ''
         for one_day in sorted(self.exchange_list, key=lambda x: x['date']):
-            print(f'Date: {one_day["date"]}')
+            result += f'Date: {one_day["date"]}\n'
             for currency in one_day['exchangeRate']:
                 if currency['currency'] in self.currencies:
-                    print(f'Val: {currency["currency"]} >> '
-                          f'Sale: {currency["saleRateNB"]}, '
-                          f'Buy: {currency["purchaseRateNB"]}')
+                    try:
+                        result += f'Val: {currency["currency"]} >> Sale: {currency["saleRate"]}, Buy: {currency["purchaseRate"]}\n'
+                    except KeyError:
+                        result += f'We dont have {currency["currency"]} in our bank now, but we can show NB exchange rate.\n' \
+                                  f'Val: {currency["currency"]} >> Sale: {currency["saleRateNB"]}, Buy: {currency["purchaseRateNB"]}\n'
+        return result
 
-
-if __name__ == "__main__":
+    async def log_to_file(self, text):
+        try:
+            async with aiofile.async_open('py_loger.log', 'a') as file:
+                await file.write(text)
+        except FileNotFoundError:
+            async with aiofile.async_open('py_loger.log', 'w') as file:
+                await  file.write(text)
+async def main(days_from_chat, currencies):
     if platform.system() == 'Windows':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     try:
-        days = int(input('Enter days: '))
-        if days > 10:
-            print('The maximum value can be no more than 10. Now it will be 10.')
-            days = 10
-        if days < 1:
-            print('The minimum value can be at least 1. Now it will be 1.')
-            days = 1
+        days = int(days_from_chat)
     except ValueError:
         print('Wrong days format. You can enter only numbers between 1 and 10 inclusive. Now it will be 1')
         days = 1
+    if days > 10:
+        print('The maximum value can be no more than 10. Now it will be 10.')
+        days = 10
+    if days < 1:
+        print('The minimum value can be at least 1. Now it will be 1.')
+        days = 1
 
-    currencies = input('What currencies would you like to see? (EUR and USD - default, if nothing enter): ')
+    private = PrivateCurrencyChange(curs=currencies)
+    exchange_rate = await private.get_exchange_course(days)
 
-    private = PrivateCurrencyChange(curs=currencies.split())
-    asyncio.run(private.get_exchange_course(days))
+    return exchange_rate
+
+if __name__ == "__main__":
+    asyncio.run(main())
