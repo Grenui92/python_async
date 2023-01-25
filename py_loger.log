@@ -6,3 +6,11 @@
 2023-01-25 12:25:27.133691--session with https://api.privatbank.ua/p24api/exchange_rates?date=24.01.2023 successfully end
 2023-01-25 12:25:37.270187--session with https://api.privatbank.ua/p24api/exchange_rates?date=23.01.2023 successfully create
 2023-01-25 12:25:37.275217--session with https://api.privatbank.ua/p24api/exchange_rates?date=23.01.2023 successfully end
+2023-01-25 17:33:40.498217--Begin connection to PrivatBank with var: days = 3 and currencies = {'CAD', 'EUR', 'USD'}
+2023-01-25 17:33:40.511645--Connection create
+2023-01-25 17:33:41.128988--session with https://api.privatbank.ua/p24api/exchange_rates?date=24.01.2023 successfully create
+2023-01-25 17:33:41.132360--session with https://api.privatbank.ua/p24api/exchange_rates?date=24.01.2023 successfully end
+2023-01-25 17:33:41.143151--session with https://api.privatbank.ua/p24api/exchange_rates?date=23.01.2023 successfully create
+2023-01-25 17:33:41.145841--session with https://api.privatbank.ua/p24api/exchange_rates?date=23.01.2023 successfully end
+2023-01-25 17:33:51.164382--session with https://api.privatbank.ua/p24api/exchange_rates?date=25.01.2023 successfully create
+2023-01-25 17:33:51.169215--session with https://api.privatbank.ua/p24api/exchange_rates?date=25.01.2023 successfully end

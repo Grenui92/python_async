@@ -54,6 +54,7 @@ class PrivateCurrencyChange:
                     except KeyError:
                         result += f'We dont have {currency["currency"]} in our bank now, but we can show NB exchange rate.\n' \
                                   f'Val: {currency["currency"]} >> Sale: {currency["saleRateNB"]}, Buy: {currency["purchaseRateNB"]}\n'
+        await self.log_to_file(f'{datetime.now()}--Close connection to PrivatBank\n')
         return result
 
     async def log_to_file(self, text):
@@ -71,8 +72,9 @@ async def main(days_from_chat, currencies):
 
     try:
         days = int(days_from_chat)
-        assert 0 < days < 11
-    except (ValueError, AssertionError):
+        if 10 < days < 1:
+            return 'Wrong days format. You can enter only numbers between 1 and 10 inclusive.'
+    except ValueError:
         return 'Wrong days format. You can enter only numbers between 1 and 10 inclusive.'
 
     private = PrivateCurrencyChange(curs=currencies)
