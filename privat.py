@@ -5,8 +5,6 @@ import asyncio
 import aiofile
 
 
-
-
 class PrivateCurrencyChange:
 
     def __init__(self, curs):
@@ -64,27 +62,20 @@ class PrivateCurrencyChange:
                 await file.write(text)
         except FileNotFoundError:
             async with aiofile.async_open('py_loger.log', 'w') as file:
-                await  file.write(text)
+                await file.write(text)
+
+
 async def main(days_from_chat, currencies):
     if platform.system() == 'Windows':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     try:
         days = int(days_from_chat)
-    except ValueError:
-        print('Wrong days format. You can enter only numbers between 1 and 10 inclusive. Now it will be 1')
-        days = 1
-    if days > 10:
-        print('The maximum value can be no more than 10. Now it will be 10.')
-        days = 10
-    if days < 1:
-        print('The minimum value can be at least 1. Now it will be 1.')
-        days = 1
+        assert 0<days<11
+    except (ValueError, AssertionError):
+        return 'Wrong days format. You can enter only numbers between 1 and 10 inclusive.'
 
     private = PrivateCurrencyChange(curs=currencies)
     exchange_rate = await private.get_exchange_course(days)
 
     return exchange_rate
-
-if __name__ == "__main__":
-    asyncio.run(main())
