@@ -27,7 +27,7 @@ class PrivateCurrencyChange:
                 # Додаэмо в список витягування котировок за кожний день. Кожен день - окрема асинхронна операція
                 data_to_get = (self.today - timedelta(i)).strftime('%d.%m.%Y')
                 url = f'{self.url}{data_to_get}'
-                tasks.append(asyncio.create_task(self.get_one_day_rate(session, url)))
+                tasks.append(self.get_one_day_rate(session, url))
             # Виконуємо створений вище список задач
             await asyncio.gather(*tasks)
 
